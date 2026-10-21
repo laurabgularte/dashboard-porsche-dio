@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Porsche Sales Analytics | Dashboard Executiva</title>
+  
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        porscheRed: '#E30613',
+                        porscheDark: '#0B0E14',
+                        porscheCard: '#121824',
+                        porscheBorder: '#1F293D',
+                        porscheGold: '#D4AF37',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0E14; color: #E5E7EB; font-family: system-ui, -apple-system, sans-serif; }
+        .glass-card { background: #121824; border: 1px solid #1F293D; border-radius: 0.75rem; }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    
+    <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-porscheBorder pb-4 gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <span class="text-porscheRed text-2xl"><i class="fa-solid fa-car-side"></i></span>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">PORSCHE <span class="text-porscheRed">SALES</span> ANALYTICS</h1>
+            </div>
+            <p class="text-gray-400 text-sm mt-1">Painel Interativo de Vendas & Desempenho Comercial</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1.5 rounded-full font-medium border border-emerald-500/20">
+                <i class="fa-solid fa-circle text-[8px] mr-1.5"></i> Base Sanitizada (100 Vendas)
+            </span>
+        </div>
+    </header>
+
+   
+    <section class="glass-card p-4 md:p-6 mb-8">
+        <div class="flex items-center gap-2 mb-4 text-porscheGold font-semibold text-sm uppercase tracking-wider">
+            <i class="fa-solid fa-filter"></i> Filtros Multidimensionais
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Família / Modelo</label>
+                <select id="filterFamily" onchange="applyFilters()" class="w-full bg-porscheDark border border-porscheBorder rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-porscheRed">
+                    <option value="ALL">Todas as Famílias</option>
+                    <option value="911">Porsche 911</option>
+                    <option value="Taycan">Porsche Taycan</option>
+                    <option value="Cayenne">Porsche Cayenne</option>
+                    <option value="Panamera">Porsche Panamera</option>
+                    <option value="Macan">Porsche Macan</option>
+                    <option value="718">Porsche 718 (Boxster/Cayman)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Estado (UF)</label>
+                <select id="filterState" onchange="applyFilters()" class="w-full bg-porscheDark border border-porscheBorder rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-porscheRed">
+                    <option value="ALL">Todos os Estados</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Método de Pagamento</label>
+                <select id="filterPayment" onchange="applyFilters()" class="w-full bg-porscheDark border border-porscheBorder rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-porscheRed">
+                    <option value="ALL">Todos os Métodos</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-400 mb-1">Status de Entrega</label>
+                <select id="filterStatus" onchange="applyFilters()" class="w-full bg-porscheDark border border-porscheBorder rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-porscheRed">
+                    <option value="ALL">Todos os Status</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+   
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="glass-card p-5 relative overflow-hidden">
+            <p class="text-xs text-gray-400 font-medium">Receita Total de Vendas</p>
+            <h3 id="kpiRevenue" class="text-2xl md:text-3xl font-extrabold text-white mt-2">$0.00</h3>
+            <div class="absolute right-4 bottom-4 text-porscheRed/20 text-4xl"><i class="fa-solid fa-sack-dollar"></i></div>
+        </div>
+        <div class="glass-card p-5 relative overflow-hidden">
+            <p class="text-xs text-gray-400 font-medium">Volume de Transações</p>
+            <h3 id="kpiSalesCount" class="text-2xl md:text-3xl font-extrabold text-white mt-2">0</h3>
+            <div class="absolute right-4 bottom-4 text-blue-500/20 text-4xl"><i class="fa-solid fa-car"></i></div>
+        </div>
+        <div class="glass-card p-5 relative overflow-hidden">
+            <p class="text-xs text-gray-400 font-medium">Ticket Médio por Veículo</p>
+            <h3 id="kpiAvgTicket" class="text-2xl md:text-3xl font-extrabold text-white mt-2">$0.00</h3>
+            <div class="absolute right-4 bottom-4 text-porscheGold/20 text-4xl"><i class="fa-solid fa-chart-line"></i></div>
+        </div>
+        <div class="glass-card p-5 relative overflow-hidden">
+            <p class="text-xs text-gray-400 font-medium">Modelo Mais Vendido (Receita)</p>
+            <h3 id="kpiTopModel" class="text-lg md:text-xl font-bold text-porscheGold mt-2 truncate">-</h3>
+            <div class="absolute right-4 bottom-4 text-emerald-500/20 text-4xl"><i class="fa-solid fa-trophy"></i></div>
+        </div>
+    </section>
+
+  
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        
+        <div class="glass-card p-5 lg:col-span-2">
+            <div class="mb-4">
+                <h4 class="text-base font-bold text-white">1. Receita por Modelo da Porsche</h4>
+                <p class="text-xs text-gray-400">Quais modelos geram maior faturamento total no período?</p>
+            </div>
+            <div class="h-72">
+                <canvas id="chartModels"></canvas>
+            </div>
+        </div>
+
+       
+        <div class="glass-card p-5">
+            <div class="mb-4">
+                <h4 class="text-base font-bold text-white">2. Distribuição por Pagamento</h4>
+                <p class="text-xs text-gray-400">Como a receita se divide entre as modalidades?</p>
+            </div>
+            <div class="h-72">
+                <canvas id="chartPayment"></canvas>
+            </div>
+        </div>
+
+       
+        <div class="glass-card p-5 lg:col-span-3">
+            <div class="mb-4">
+                <h4 class="text-base font-bold text-white">3. Faturamento por Estado (Top Mercados)</h4>
+                <p class="text-xs text-gray-400">Quais regiões concentram o maior volume financeiro de vendas?</p>
+            </div>
+            <div class="h-64">
+                <canvas id="chartStates"></canvas>
+            </div>
+        </div>
+    </section>
+
+   
+    <section class="glass-card p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <h4 class="text-base font-bold text-white">Registro Detalhado de Vendas</h4>
+            <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Buscar modelo, cidade, cliente..." class="bg-porscheDark border border-porscheBorder rounded-lg px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-porscheRed w-full sm:w-64">
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-gray-300">
+                <thead class="bg-porscheDark text-gray-400 uppercase text-[10px] border-b border-porscheBorder">
+                    <tr>
+                        <th class="p-3">ID</th>
+                        <th class="p-3">Modelo</th>
+                        <th class="p-3">Ano</th>
+                        <th class="p-3">Preço ($)</th>
+                        <th class="p-3">Km</th>
+                        <th class="p-3">Pagamento</th>
+                        <th class="p-3">Cidade / UF</th>
+                        <th class="p-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody" class="divide-y divide-porscheBorder/50">
+                  
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+   
+    <script>
+       
+        const salesData = [
+            { id: 6, model: "718 Cayman", year: 2022, price: 79500, mileage: 9800, payment: "Credit Card", city: "Boston", state: "MA", status: "Delivered", family: "718" },
+            { id: 7, model: "911 Turbo S", year: 2024, price: 235000, mileage: 1200, payment: "Wire Transfer", city: "Seattle", state: "WA", status: "Delivered", family: "911" },
+            { id: 8, model: "Cayenne Coupe", year: 2023, price: 112750, mileage: 6400, payment: "Financing", city: "Austin", state: "TX", status: "In Transit", family: "Cayenne" },
+            { id: 9, model: "Macan S", year: 2021, price: 68900, mileage: 28, payment: "Cash", city: "Denver", state: "CO", status: "Pending", family: "Macan" },
+            { id: 10, model: "Taycan 4S", year: 2024, price: 121000, mileage: 0, payment: "Bank Transfer", city: "Los Angeles", state: "CA", status: "Delivered", family: "Taycan" },
+            { id: 11, model: "Panamera 4", year: 2023, price: 104500, mileage: 4100, payment: "Credit Card", city: "Miami", state: "FL", status: "Cancelled", family: "Panamera" },
+            { id: 12, model: "911 Carrera S", year: 2020, price: 96300, mileage: 18500, payment: "Lease", city: "New York", state: "NY", status: "Delivered", family: "911" },
+            { id: 13, model: "Cayenne E-Hybrid", year: 2022, price: 89750, mileage: 11200, payment: "Wire Transfer", city: "San Francisco", state: "CA", status: "Pending Approval", family: "Cayenne" },
+            { id: 14, model: "718 Boxster", year: 2021, price: 73500, mileage: 8400, payment: "Debit Card", city: "Chicago", state: "IL", status: "Shipped", family: "718" },
+            { id: 15, model: "Macan GTS", year: 2024, price: 95000, mileage: 50, payment: "Financing", city: "Phoenix", state: "AZ", status: "In Transit", family: "Macan" },
+            { id: 16, model: "Taycan Turbo S", year: 2023, price: 215000, mileage: 3200, payment: "Crypto Payment", city: "Dallas", state: "TX", status: "Delivered", family: "Taycan" },
+            { id: 17, model: "911 GT3", year: 2022, price: 228000, mileage: 2100, payment: "Wire Transfer", city: "Las Vegas", state: "NV", status: "Delivered", family: "911" },
+            { id: 18, model: "Panamera Turbo", year: 2021, price: 138000, mileage: 14500, payment: "Financing", city: "Houston", state: "TX", status: "Delivered", family: "Panamera" },
+            { id: 19, model: "Cayenne Turbo GT", year: 2024, price: 202000, mileage: 150, payment: "Wire Transfer", city: "Atlanta", state: "GA", status: "In Transit", family: "Cayenne" },
+            { id: 20, model: "Macan Electric", year: 2024, price: 88500, mileage: 0, payment: "Credit Card", city: "San Jose", state: "CA", status: "Shipped", family: "Macan" }
+            
+        ];
+
+        let chartModelsInstance = null;
+        let chartPaymentInstance = null;
+        let chartStatesInstance = null;
+
+        function initFilterOptions() {
+            const states = [...new Set(salesData.map(d => d.state))].sort();
+            const payments = [...new Set(salesData.map(d => d.payment))].sort();
+            const statuses = [...new Set(salesData.map(d => d.status))].sort();
+
+            const stateSelect = document.getElementById('filterState');
+            states.forEach(s => stateSelect.add(new Option(s, s)));
+
+            const paySelect = document.getElementById('filterPayment');
+            payments.forEach(p => paySelect.add(new Option(p, p)));
+
+            const statusSelect = document.getElementById('filterStatus');
+            statuses.forEach(st => statusSelect.add(new Option(st, st)));
+        }
+
+        function getFilteredData() {
+            const family = document.getElementById('filterFamily').value;
+            const state = document.getElementById('filterState').value;
+            const payment = document.getElementById('filterPayment').value;
+            const status = document.getElementById('filterStatus').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            return salesData.filter(d => {
+                const matchFamily = family === 'ALL' || d.family === family;
+                const matchState = state === 'ALL' || d.state === state;
+                const matchPayment = payment === 'ALL' || d.payment === payment;
+                const matchStatus = status === 'ALL' || d.status === status;
+                const matchSearch = d.model.toLowerCase().includes(search) || d.city.toLowerCase().includes(search);
+                return matchFamily && matchState && matchPayment && matchStatus && matchSearch;
+            });
+        }
+
+        function updateDashboard() {
+            const filtered = getFilteredData();
+
+           
+            const totalRev = filtered.reduce((acc, curr) => acc + curr.price, 0);
+            const totalSales = filtered.length;
+            const avgTicket = totalSales > 0 ? totalRev / totalSales : 0;
+
+            document.getElementById('kpiRevenue').innerText = `$${totalRev.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+            document.getElementById('kpiSalesCount').innerText = totalSales;
+            document.getElementById('kpiAvgTicket').innerText = `$${avgTicket.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+
+            const modelMap = {};
+            filtered.forEach(d => { modelMap[d.model] = (modelMap[d.model] || 0) + d.price; });
+            let topModel = "-";
+            let maxRev = 0;
+            for (let m in modelMap) {
+                if (modelMap[m] > maxRev) { maxRev = modelMap[m]; topModel = m; }
+            }
+            document.getElementById('kpiTopModel').innerText = topModel;
+
+            
+            const sortedModels = Object.entries(modelMap).sort((a,b) => b[1] - a[1]).slice(0, 7);
+            const modelLabels = sortedModels.map(x => x[0]);
+            const modelValues = sortedModels.map(x => x[1]);
+
+            if (chartModelsInstance) chartModelsInstance.destroy();
+            chartModelsInstance = new Chart(document.getElementById('chartModels'), {
+                type: 'bar',
+                data: {
+                    labels: modelLabels,
+                    datasets: [{
+                        label: 'Receita ($)',
+                        data: modelValues,
+                        backgroundColor: '#E30613'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#9CA3AF' }, grid: { color: '#1F293D' } },
+                        y: { ticks: { color: '#E5E7EB' }, grid: { display: false } }
+                    }
+                }
+            });
+
+           
+            const payMap = {};
+            filtered.forEach(d => { payMap[d.payment] = (payMap[d.payment] || 0) + d.price; });
+            
+            if (chartPaymentInstance) chartPaymentInstance.destroy();
+            chartPaymentInstance = new Chart(document.getElementById('chartPayment'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(payMap),
+                    datasets: [{
+                        data: Object.values(payMap),
+                        backgroundColor: ['#E30613', '#D4AF37', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#E5E7EB', font: { size: 10 } } } }
+                }
+            });
+
+            const stateMap = {};
+            filtered.forEach(d => { stateMap[d.state] = (stateMap[d.state] || 0) + d.price; });
+            const sortedStates = Object.entries(stateMap).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+            if (chartStatesInstance) chartStatesInstance.destroy();
+            chartStatesInstance = new Chart(document.getElementById('chartStates'), {
+                type: 'bar',
+                data: {
+                    labels: sortedStates.map(x => x[0]),
+                    datasets: [{
+                        label: 'Faturamento ($)',
+                        data: sortedStates.map(x => x[1]),
+                        backgroundColor: '#D4AF37'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#E5E7EB' }, grid: { display: false } },
+                        y: { ticks: { color: '#9CA3AF' }, grid: { color: '#1F293D' } }
+                    }
+                }
+            });
+
+           
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = '';
+            filtered.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-mono text-gray-400">#${d.id}</td>
+                    <td class="p-3 font-semibold text-white">${d.model}</td>
+                    <td class="p-3">${d.year}</td>
+                    <td class="p-3 font-semibold text-emerald-400">$${d.price.toLocaleString()}</td>
+                    <td class="p-3">${d.mileage.toLocaleString()} mi</td>
+                    <td class="p-3">${d.payment}</td>
+                    <td class="p-3">${d.city}, ${d.state}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-gray-800 text-gray-300 border border-gray-700">${d.status}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function applyFilters() {
+            updateDashboard();
+        }
+
+        window.onload = function() {
+            initFilterOptions();
+            updateDashboard();
+        };
+    </script>
+</body>
+</html>
