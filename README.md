@@ -2,7 +2,7 @@
 
 Dashboard interativa de desempenho de vendas da Porsche desenvolvida para o desafio de projeto DIO. O projeto transforma uma base de dados sanitizada de 100 transações comerciais em um painel responsivo em HTML/JS, sem limitações do Excel e com publicação gratuita no GitHub Pages.
 
-🔗 **Dashboard Online:** `https://laurabgularte.github.io/dashboard-porsche-dio/`
+🔗 **Dashboard Online:** https://laurabgularte.github.io/dashboard-porsche-dio/
 
 ---
 
